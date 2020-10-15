@@ -14,16 +14,16 @@ The code does the following steps:
   - 1536 bytes,
   - 2 sections (code and data),
   - **NO** imports table and other data directories,
-  - uses **THREAD ENVIRONMENT BLOCK** (TEB) to get kernel32.dll base,
-  - reads entry point of GetAddressProc() directly from kernel32 exports,
+  - uses **THREAD ENVIRONMENT BLOCK** (TEB) to get KERNEL32.DLL base,
+  - reads entry point of GetAddressProc() directly from KERNEL32 exports,
   - then calls it to get entry of LoadLibraryA() routine.
 
 # Standard PE32+ / stack version (64-bit)
   - 1536 bytes,
   - 2 sections (code and data),
   - **NO** imports table and other data directories,
-  - uses **RETURN ADDRESS** to get kernel32.dll base,
-  - reads entry point of GetAddressProc() directly from kernel32 exports,
+  - uses **RETURN ADDRESS** to get KERNEL32.DLL base,
+  - reads entry point of GetAddressProc() directly from KERNEL32 exports,
   - then calls it to get entry of LoadLibraryA() routine.
 
 # Minimal PE32+ / size-optimized stack version (64-bit)
@@ -31,13 +31,13 @@ The code does the following steps:
   - no sections,
   - **NO** imports table and other data directories,
   - **SIZE-OPTIMIZED** to fits within 268 bytes,
-  - uses **RETURN ADDRESS** to get kernel32.dll base,
-  - reads entry point of GetAddressProc() directly from kernel32 exports,
+  - uses **RETURN ADDRESS** to get KERNEL32.DLL base,
+  - reads entry point of GetAddressProc() directly from KERNEL32 exports,
   - then calls it to get entry of LoadLibraryA() routine.
 
 # How does stack version work
 - We assume that entry point in our application is called directly by KERNEL32.DLL,
-- so the return address on app start-up should points somwhere **in-the-middle** of KERNEL32.dll module,
+- so the return address on app start-up should points somwhere **in-the-middle** of KERNEL32.DLL module,
 - we scan memory pointed by return address backward until we found something, which **looks like the PE** header.
 
 # How does TEB version work
