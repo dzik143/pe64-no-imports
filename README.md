@@ -52,6 +52,6 @@ The code does the following steps:
 
 # Links
 Based on codes samples from:
-- https://stackoverflow.com/a32820799
+- https://stackoverflow.com/a/32820799
 - https://hero.handmade.network/forums/code-discussion/t/129-howto_-_building_without_import_libraries
 - https://stackoverflow.com/a/45528159
