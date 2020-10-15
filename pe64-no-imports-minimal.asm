@@ -94,6 +94,11 @@ __headerPE:
 
 ; -------------------------------------------------------------------------------
 
+  ; --------------------------------------------------
+  ; To keep code small, we store strings in PE fields,
+  ; which are not neccesery to run. See LIMITATIONS
+  ; note.
+
   ;.timeDateStamp        dd 0
   ;.pointerToSymbolTable dd 0
   ;.numberOfSymbols      dd 0
@@ -115,11 +120,6 @@ __headerPE:
   ;.sizeOfCode              dd 0
   ;.sizeOfInitializedData   dd 0
   ;.sizeOfUninitializedData dd 0
-
-  ; --------------------------------------------------
-  ; To keep code small, we store strings in PE fields,
-  ; which are not neccesery to run. See LIMITATIONS
-  ; note.
 
   .name_GetProcAddress:
       ; 0........1....

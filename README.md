@@ -47,8 +47,8 @@ The code does the following steps:
 
 # Limitations:
 - Code works on x86-64 only (PE32+),
-- Minimal version is size-optimized to fit wihin 268 bytes, due to this literals are overlapping unused PE parts, which are not
-  neccesery to run a program, but some disassemblers or debuggers may fail to load the file.
+- Minimal version is size-optimized to fit wihin 268 bytes, due to this, literals are stored in the unused
+  PE parts, which are not neccesery to run a program, but some disassemblers or debuggers may fail to load the file.
 
 # Links
 Based on codes samples from:
