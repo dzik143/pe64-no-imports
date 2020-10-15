@@ -31,7 +31,7 @@ The code does the following steps:
   - no sections,
   - **NO** imports table and other data directories,
   - **SIZE-OPTIMIZED** to fits within 268 bytes,
-  - uses **RETURN ADDRESS to get kernel32.dll base,
+  - uses **RETURN ADDRESS** to get kernel32.dll base,
   - reads entry point of GetAddressProc() directly in kernel32 exports,
   - then call it to get entry of LoadLibraryA() routine.
 
