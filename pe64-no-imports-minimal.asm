@@ -395,7 +395,9 @@ printMessage:
     leave                         ; clean up stack frame
     ret                           ; exit process, go back to the parent module
 
+    ; -----------------------------------
+    ; Fill up to 268 bytes, because PE32
+    ; file probably cannot be smaller (?)
 
-    ; Fill up to 268 bytes, because PE32+ file cannot be smaller (?)
     nop
     nop
