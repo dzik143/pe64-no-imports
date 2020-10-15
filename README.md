@@ -1,4 +1,4 @@
-# 64-bit PE without imports table - LoadLibrary() without imports table
+# PE32+ (64-bit) - LoadLibrary() without imports table
 
 # What does it do
 Code shows the example how to use external modules on-the-fly **WITHOUT** imports table.
