@@ -45,7 +45,7 @@
 ;   4. Get entry point of GetProcAddress directly (from kernel32 exports),
 ;   5. Use GetProcAddress to find entry of LoadLibraryA routine,
 ;   6. Import user32!MessageBoxA routine,
-;   7. Call MessageBoxA() to show it's work.
+;   7. Call MessageBoxA() to show it works.
 
 ; How does it work:
 ; ----------------

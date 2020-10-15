@@ -41,7 +41,7 @@
 ;   3. find the entry point of GetProcAddress in kernel32!ExportTable,
 ;   4. use GetProcAddress to find entry of kernel32!LoadLibraryA routine,
 ;   5. use LoadLibraryA and GetProcAddress to import msvcrt!puts,
-;   6. call puts() a few times to show it's work.
+;   6. call puts() a few times to show it works.
 
 ; How does it work:
 ; ----------------
