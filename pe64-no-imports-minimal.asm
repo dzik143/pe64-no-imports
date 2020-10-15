@@ -18,6 +18,16 @@
 ; Created on: 2020-10-12
 ; Last modified on: 2020-10-15
 
+; Size-optimized version of pe64-no-imports-normal.asm file.
+; ==========================================================
+
+; Shows how to get entry points to GetProcAddress and LoadLibrary() manually
+; *WITHOUT* imports table.
+
+; - 268 bytes,
+; - no sections,
+; - no imports table and other data directories,
+
 ; Based on code from posts:
 ; -------------------------
 ; - https://stackoverflow.com/a/32820799
