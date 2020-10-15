@@ -18,7 +18,7 @@
 ; Created on: 2020-10-12
 ; Last modified on: 2020-10-15
 
-; Size-optimized version of pe64-no-imports-normal.asm file.
+; Size-optimized version of pe64-no-imports-normal-ra.asm file.
 ; ==========================================================
 
 ; Shows how to get entry points to GetProcAddress and LoadLibrary() manually
