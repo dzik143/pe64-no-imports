@@ -6,7 +6,7 @@
   and [LoadLibraryA](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibrarya) manually.
 
 # What does it do
-Code shows the example how to import external modules on-the-fly *WITHOUT* import table.
+Code shows the example how to import external modules on-the-fly **WITHOUT** import table.
 
 The code does the following steps:
 1. Find the KERNEL32.DLL base using return address passed from OS,
