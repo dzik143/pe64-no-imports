@@ -6,9 +6,9 @@ Code shows the example how to use external modules on-the-fly **WITHOUT** import
 The code does the following steps:
 1. Finds out the KERNEL32.DLL base (see versions below),
 2. finds out export table at KERNEL32.DLL module space (kernel32!ExportTable),
-3. finds out the entry point of [GetProcAddress](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getprocaddress) in kernel32!ExportTable directly,
-4. uses GetProcAddress to get entry point of [LoadLibraryA](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibrarya) routine,
-5. uses LoadLibraryA and GetProcAddress to import desired module and symbols.
+3. finds out the entry point of [GetProcAddress](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getprocaddress) in kernel32!ExportTable **directly** (in memory),
+4. calls GetProcAddress to get entry point of [LoadLibraryA](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibrarya) routine,
+5. calls LoadLibraryA and GetProcAddress to import desired module and symbols.
 
 # Standard PE32+ / TEB version (64-bit)
   - 1536 bytes,
