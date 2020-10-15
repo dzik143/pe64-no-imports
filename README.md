@@ -1,7 +1,7 @@
 # 64-bit PE without imports table
 
 # What does it do
-Code shows the example how to import external modules on-the-fly **WITHOUT** import table.
+Code shows the example how to use external modules on-the-fly **WITHOUT** imports table.
 
 The code does the following steps:
 1. Find the KERNEL32.DLL base (see versions below),
@@ -16,7 +16,7 @@ The code does the following steps:
   - **NO** imports table and other data directories,
   - uses **THREAD ENVIRONMENT BLOCK** (TEB) to get kernel32.dll base,
   - reads entry point of GetAddressProc() directly in kernel32 exports,
-  - then call it to get entry of LoadLibraryA() routine.
+  - then calls it to get entry of LoadLibraryA() routine.
 
 # Standard 32+ PE / stack version (64-bit)
   - 1536 bytes,
@@ -24,7 +24,7 @@ The code does the following steps:
   - **NO** imports table and other data directories,
   - uses **RETURN ADDRESS** to get kernel32.dll base,
   - reads entry point of GetAddressProc() directly in kernel32 exports,
-  - then call it to get entry of LoadLibraryA() routine.
+  - then calls it to get entry of LoadLibraryA() routine.
 
 # Minimal 32+ PE (64-bit)
   - **268 bytes**,
@@ -33,15 +33,15 @@ The code does the following steps:
   - **SIZE-OPTIMIZED** to fits within 268 bytes,
   - uses **RETURN ADDRESS** to get kernel32.dll base,
   - reads entry point of GetAddressProc() directly in kernel32 exports,
-  - then call it to get entry of LoadLibraryA() routine.
+  - then calls it to get entry of LoadLibraryA() routine.
 
 # How does stack version work
 - We assume that entry point in our application is called directly by KERNEL32.DLL,
-- So the return address on app start-up should points somwhere in-the-middle of KERNEL32.dll module,
-- So, we scan memory pointed by return address backward until we find something, which looks like the PE header.
+- So the return address on app start-up should points somwhere **in-the-middle** of KERNEL32.dll module,
+- So, we scan memory pointed by return address backward until we found something, which **looks like the PE** header.
 
 # How does TEB version work
-  - GS register points to the Thread Environment Block (TEB) on x86-64 Windows
+  - **GS register** points to the **Thread Environment Block** (TEB) on x86-64 Windows
     (https://en.wikipedia.org/wiki/Win32_Thread_Information_Block),
 
   - We search TEB.PEB.LoaderData.Modules for 'kernel32.dll' entry.
