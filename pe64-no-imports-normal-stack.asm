@@ -63,7 +63,7 @@
 
 ; Build by command:
 ; -----------------
-; fasm pe64-no-imports-normal.asm
+; fasm pe64-no-imports-normal-stack.asm
 
 format PE64
 
@@ -177,7 +177,7 @@ __entryPoint:
     ; Fetch GetProcAddress entry point
     ; ... = BASE + ExportTable.ExportAddressTable[ordinal]
 
-    mov   eax, [rdx + 28]         ; edx = RVA(ExportTable.ExportAddressTable)
+    mov   eax, [rdx + 28]         ; rax = RVA(ExportTable.ExportAddressTable)
     add   rax, rbx                ; rax = ExportTable.ExportAddressTable
 
     mov   edi, [rax + rcx*4]      ; edi = RVA(GetProcAddress)
@@ -225,7 +225,7 @@ __entryPoint:
     mov   [__imp_User32], rax     ; save user32 module base
 
     ; -------------------------------------------
-    ; Import user32!puts routine
+    ; Import user32!MessageBox routine
     ; ... = GetProcAddress(user32, 'MessageBoxA')
 
     mov   rcx, rax                  ; rcx = moduleBase = user32
@@ -266,7 +266,7 @@ section '.data' writeable readable
   __name_user32       db 'user32.dll', 0
 
   __messageCaption db 'PE32+ without imports table (stack version).', 0
-  __messageText    db 'This executable has no imports table', 13, 10
+  __messageText    db 'This executable has no imports table.', 13, 10
                    db 'We found kernel32 base via return address to the parent module.', 0
 
   __imp_Kernel32       dq ?

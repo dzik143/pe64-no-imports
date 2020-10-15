@@ -62,7 +62,7 @@
 
 ; Build by command:
 ; -----------------
-; fasm pe64-no-imports.asm
+; fasm pe64-no-imports-minimal.asm
 
 format binary as 'exe'
 use64
@@ -257,14 +257,14 @@ __realEntryPoint:
                                   ;     = address of NamePointerTable in memory
 
     push  -1                      ;
-    pop   rbp                     ; rcx = procIdx = index in export table
+    pop   rbp                     ; rbp = procIdx = index in export table
 
 .scanNextProc:
 
     ; ----------------------------
     ; Fetch next proc entry
 
-    inc   ebp                     ; rcx = procIdx + 1 = go to next proc entry
+    inc   ebp                     ; rbp = procIdx + 1 = go to next proc entry
     mov   edi, [rax + rbp*4]      ; edi = RVA(NamePointerTable[procIdx])
 
     add   rdi, rbx                ; rdi = BASE + RVA(NamePointerTable[procIdx])
@@ -280,7 +280,7 @@ __realEntryPoint:
     push  14                      ;
     pop   rcx                     ; rcx = 14 = len('GetProcAddress')
     repe  cmpsb                   ; Are strings equal?
-    pop   rsi                     ; rdi = keep pattern text unchanged
+    pop   rsi                     ; rsi = keep pattern text unchanged
 
     jne   .scanNextProc           ; Does 'GetProcAddress' found?
 
@@ -310,7 +310,7 @@ __realEntryPoint:
     ; Fetch GetProcAddress entry point
     ; ... = BASE + ExportTable.ExportAddressTable[ordinal]
 
-    mov   eax, [rdx + 28]         ; edx = RVA(ExportTable.ExportAddressTable)
+    mov   eax, [rdx + 28]         ; eax = RVA(ExportTable.ExportAddressTable)
     add   rax, rbx                ; rax = ExportTable.ExportAddressTable
 
     mov   edi, [rax + rcx*4]      ; edi = RVA(GetProcAddress)
@@ -345,7 +345,7 @@ __realEntryPoint:
     ; ##########################################################################
 
     ; --------------------------------
-    ; Import user32.dll
+    ; Import msvcrt.dll
     ; ... = LoadLibraryA('msvcrt.dll')
 
     lea   rcx, [rsi + __headerPE.name_msvcrt - __rel8_base]

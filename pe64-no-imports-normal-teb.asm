@@ -64,7 +64,7 @@
 
 ; Build by command:
 ; -----------------
-; fasm pe64-no-imports-normal.asm
+; fasm pe64-no-imports-normal-teb.asm
 
 format PE64
 
@@ -119,9 +119,9 @@ __entryPoint:
     ; Fetch next DllName
 
     mov   esi, [rbx + 56]         ;  si = DllNameLength (int16)
-    and   esi, 0xff               ; esi = DllNameLength (int64)
+    and   esi, 0xff               ; rsi = DllNameLength (int64)
 
-    add   rsi, qword [rbx + 64]   ; rax = DllNameBuffer + DllNameLength =
+    add   rsi, qword [rbx + 64]   ; rsi = DllNameBuffer + DllNameLength =
                                   ;     = the end of DllNameLength buffer
 
     ; --------------------------------------------------------------------------
@@ -137,10 +137,10 @@ __entryPoint:
 
 .compareLoop:
 
-    mov   al, [rsi + rcx*2]       ; dl = fetch next char
-    or    al, 32                  ; dl = lowercase
+    mov   al, [rsi + rcx*2]       ; al = fetch next char
+    or    al, 32                  ; al = lowercase
     cmp   al, [__name_kernel32 + rcx - 1]
-                                  ; is characters match?
+                                  ; are characters equal?
 
     jne   .scanNextLdrModule      ; go to next module if not matched
 
@@ -279,7 +279,7 @@ __entryPoint:
     mov   [__imp_User32], rax     ; save user32 module base
 
     ; -------------------------------------------
-    ; Import user32!puts routine
+    ; Import user32!MessageBoxA routine
     ; ... = GetProcAddress(user32, 'MessageBoxA')
 
     mov   rcx, rax                  ; rcx = moduleBase = user32
@@ -322,7 +322,7 @@ section '.data' writeable readable
   __name_MessageBoxA  db 'MessageBoxA', 0
 
   __messageCaption db 'PE32+ without imports table (TEB version).', 0
-  __messageText    db 'This executable has no imports table', 13, 10
+  __messageText    db 'This executable has no imports table.', 13, 10
                    db 'We found kernel32 base via Thread Environment Block (TEB).', 0
 
   __imp_Kernel32       dq ?
