@@ -10,7 +10,7 @@ The code does the following steps:
 4. uses GetProcAddress to get entry point of [LoadLibraryA](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibrarya) routine,
 5. uses LoadLibraryA and GetProcAddress to import desired module and symbols.
 
-# Standard 32+ PE / TEB version (64-bit)
+# Standard PE32+ / TEB version (64-bit)
   - 1536 bytes,
   - 2 sections (code and data),
   - **NO** imports table and other data directories,
@@ -18,7 +18,7 @@ The code does the following steps:
   - reads entry point of GetAddressProc() directly in kernel32 exports,
   - then calls it to get entry of LoadLibraryA() routine.
 
-# Standard 32+ PE / stack version (64-bit)
+# Standard PE32+ / stack version (64-bit)
   - 1536 bytes,
   - 2 sections (code and data),
   - **NO** imports table and other data directories,
@@ -26,7 +26,7 @@ The code does the following steps:
   - reads entry point of GetAddressProc() directly in kernel32 exports,
   - then calls it to get entry of LoadLibraryA() routine.
 
-# Minimal 32+ PE (64-bit)
+# Minimal PE32+ / size-optimized stack version (64-bit)
   - **268 bytes**,
   - no sections,
   - **NO** imports table and other data directories,
