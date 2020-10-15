@@ -34,9 +34,6 @@
 ; - https://hero.handmade.network/forums/code-discussion/t/129-howto_-_building_without_import_libraries
 ; - https://stackoverflow.com/a/45528159
 
-; Code shows the example how to import external modules on-the-fly *WITHOUT*
-; import table.
-
 ; Below code does:
 ; ----------------
 ;   1. Find the KERNEL32.DLL base using return address passed from OS,

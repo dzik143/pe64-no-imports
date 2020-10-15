@@ -4,11 +4,11 @@
 Code shows the example how to use external modules on-the-fly **WITHOUT** imports table.
 
 The code does the following steps:
-1. Find the KERNEL32.DLL base (see versions below),
-2. find export table at KERNEL32.DLL module space (kernel32!ExportTable),
-3. find the entry point of [GetProcAddress](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getprocaddress) in kernel32!ExportTable directly,
-4. use GetProcAddress to find entry of [LoadLibraryA](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibrarya) routine,
-5. use LoadLibraryA and GetProcAddress to import desired module.
+1. Finds out the KERNEL32.DLL base (see versions below),
+2. finds out export table at KERNEL32.DLL module space (kernel32!ExportTable),
+3. finds out the entry point of [GetProcAddress](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getprocaddress) in kernel32!ExportTable directly,
+4. uses GetProcAddress to get entry point of [LoadLibraryA](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibrarya) routine,
+5. uses LoadLibraryA and GetProcAddress to import desired module and symbols.
 
 # Standard 32+ PE / TEB version (64-bit)
   - 1536 bytes,
@@ -37,13 +37,12 @@ The code does the following steps:
 
 # How does stack version work
 - We assume that entry point in our application is called directly by KERNEL32.DLL,
-- So the return address on app start-up should points somwhere **in-the-middle** of KERNEL32.dll module,
-- So, we scan memory pointed by return address backward until we found something, which **looks like the PE** header.
+- so the return address on app start-up should points somwhere **in-the-middle** of KERNEL32.dll module,
+- we scan memory pointed by return address backward until we found something, which **looks like the PE** header.
 
 # How does TEB version work
   - **GS register** points to the **Thread Environment Block** (TEB) on x86-64 Windows
     (https://en.wikipedia.org/wiki/Win32_Thread_Information_Block),
-
   - We search TEB.PEB.LoaderData.Modules for 'kernel32.dll' entry.
 
 # Limitations:
