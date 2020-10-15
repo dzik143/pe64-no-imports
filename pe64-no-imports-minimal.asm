@@ -18,14 +18,14 @@
 ; Created on: 2020-10-12
 ; Last modified on: 2020-10-15
 
-; Size-optimized version of pe64-no-imports-normal-ra.asm file.
-; ==========================================================
+; Size-optimized version of pe64-no-imports-normal-stack.asm file.
+; ================================================================
 
 ; Shows how to get entry points to GetProcAddress and LoadLibrary() manually
 ; *WITHOUT* imports table.
 
 ; - 268 bytes,
-; - no sections,
+; - no sections (headers only file),
 ; - no imports table and other data directories,
 
 ; Based on code from posts:
@@ -43,7 +43,8 @@
 ;   2. find export table at KERNEL32.DLL module space (kernel32!ExportTable),
 ;   3. find the entry point of GetProcAddress in kernel32!ExportTable,
 ;   4. use GetProcAddress to find entry of kernel32!LoadLibraryA routine,
-;   5. use LoadLibraryA and GetProcAddress to import msvcrt!puts.
+;   5. use LoadLibraryA and GetProcAddress to import msvcrt!puts,
+;   6. call puts() a few times to show it's work.
 
 ; How does it work:
 ; ----------------

@@ -49,14 +49,15 @@
 
 ; How does it work:
 ; ----------------
-; - We assume that entry point in our application is called directly by
-;   KERNEL32.DLL,
+; - GS register points to the Thread Environment Block (TEB) on x86-64 Windows
+;   (https://en.wikipedia.org/wiki/Win32_Thread_Information_Block),
 ;
-; - So the return address on app start-up should points somwhere in-the-middle
-;   of KERNEL32.dll module,
-;
-; - So, we scan memory pointed by return address backward until we find
-;   something, which looks like the PE header.
+; - We search TEB.PEB.LoaderData.Modules for 'kernel32.dll' entry.
+
+; Possible improvements:
+; ----------------------
+; - match full '%WINDIR%\SYSTEM32\KERNEL32.DLL' path for security (?)
+;   (we search for kernel32.dll string only).
 
 ; Limitations:
 ; - Code works on x86-64 only (PE32+).
