@@ -195,15 +195,17 @@ __headerPE:
 
   .numberOfRvaAndSizes dd 0
 
-  ; ----------------------------------------------------------------
-  ; Below we have 128 (16*8) bytes of unused Data Directory entries.
-  ; Because we declare PE.numberOfRvaAndSizes equal to zero, we can
-  ; put 128 bytes of code here.
+    ; ----------------------------------------------------------------
+    ; Entry point declared in the PE header.
+    ; This is the first code executed after PE header
+    ; is loaded into memory.
+    ;
+    ; Below we have 128 (16*8) bytes of unused Data Directory entries.
+    ; Because we declare PE.numberOfRvaAndSizes equal to zero, we can
+    ; put 128 bytes of code here.
 
 __unusedDataDirectoryEntires:
-__realEntryPoint:
-
-    push  rbx
+__entryPoint:
 
     ; ------------------------------------------------
     ; Map literals base to rsi to avoid usage
@@ -221,6 +223,10 @@ __realEntryPoint:
 
     ; ----------------------------------------------------------
     ; Find module base address by searching for 'MZ\x90\0' magic
+
+    pop   rbx
+    push  rbx                      ; rbx = retAddr (to parent module) (1 byte)
+
     mov   eax, [rsi - __rel8_base] ; rax = dos magic readed from itself.
 
 .searchForDosHeader:
@@ -389,15 +395,7 @@ printMessage:
     leave                         ; clean up stack frame
     ret                           ; exit process, go back to the parent module
 
-    ; -----------------------------------------------
-    ; Entry point declared in the PE header.
-    ; This is the first code executed after PE header
-    ; is loaded into memory.
-    ; We have only 3 bytes available here.
 
-__entryPoint:
-
-  pop   rbx                       ; rbx = retAddr (to parent module) (1 byte)
-  jmp   __realEntryPoint          ; go to real entry point within
-                                  ; unused DataDirectories entries of PE
-                                  ; header (2 bytes).
+    ; Fill up to 268 bytes, because PE32+ file cannot be smaller (?)
+    nop
+    nop
