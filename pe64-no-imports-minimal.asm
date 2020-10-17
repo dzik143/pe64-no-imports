@@ -16,7 +16,7 @@
 ;###############################################################################
 
 ; Created on: 2020-10-12
-; Last modified on: 2020-10-15
+; Last modified on: 2020-10-17
 
 ; Size-optimized version of pe64-no-imports-normal-stack.asm file.
 ; ================================================================
@@ -41,7 +41,7 @@
 ;   3. find the entry point of GetProcAddress in kernel32!ExportTable,
 ;   4. use GetProcAddress to find entry of kernel32!LoadLibraryA routine,
 ;   5. use LoadLibraryA and GetProcAddress to import msvcrt!puts,
-;   6. call puts() a few times to show it works.
+;   6. call puts() to show it works.
 
 ; How does it work:
 ; ----------------
@@ -82,7 +82,7 @@ __headerDOS:
 
 ; ##############################################################################
 ; #
-; #                         PE header (fixed part)
+; #                                 PE header
 ; #
 ; ##############################################################################
 
@@ -110,8 +110,8 @@ __headerPE:
 ; -------------------------------------------------------------------------------
 
   .sizeOfOptionalHeader dw 0*8
-  .characteristics      dw 002fh ; be bit 1=1 bit 13=0
-  .magicPE64            dw 020Bh ; PE32+ magic
+  .characteristics      dw 002fh  ; be bit 1=1 bit 13=0
+  .magicPE64            dw 020Bh  ; PE32+ magic
 
 ; -------------------------------------------------------------------------------
 
@@ -157,63 +157,144 @@ __headerPE:
 
 ; -------------------------------------------------------------------------------
 
-  .sizeOfImage        dd 400h         ; must be > 0200h
+  .sizeOfImage        dd 400h     ; must be > 0200h
   .sizeOfHeaders      dd __entryPoint
-  .checksum           dd 0
-  .subsystem          dw 3            ; 2=GUI, 3=Console
-  .dllCharacteristics dw 0
+  .checksum           dd 0        ;
+  .subsystem          dw 3        ; 2=GUI, 3=Console
+  .dllCharacteristics dw 0        ;
 
-; -------------------------------------------------------------------------------
+    ; ------------------------------------------------
+    ; Below there are four quad-word declarations,
+    ; which determine how much memory should be
+    ; reserved for our process:
+    ; - SizeOfStackReserve (8 bytes)
+    ; - SizeOfStackCommit  (8 bytes)
+    ; - SizeOfHeapReserve  (8 bytes)
+    ; - SizeOfStackCommit  (8 bytes)
+    ;                      (32 bytes total)
+    ;
+    ; We store some code here, but keep high 32-word
+    ; of each declaration zeroed to avoid huge values
+    ; above 4 GB (which may cause the file unloadable).
 
-  .messageTexts:
-  .messageText5:
+    ; -----------------------------------------------
+    ; Entry point declared in the PE header.
+    ; This is the first code executed after PE header
+    ; is loaded into memory.
 
-  .sizeOfStackReserve:
-    dd 'rts!'
+__entryPoint:
+
+    ; -----------------------------------------------
+    ; First 8-bytes chunk: SizeOfStackReserve
+    ;
+    ; 1. Load return address to parent module (kernel32) into rbx.
+    ; 2. Use call 0 instruction to get RIP value into rsi.
+
+    ; We treat the high 32-bit zeres as part of call 0 instruction:
+    ; 5b             | pop rbx   (1 byte)
+    ; 53             | push rbx  (1 byte)
+    ; 90             | nop       (1 byte)
+    ; e8 00 00 00 00 | call 0    (5 bytes)
+    ;    ^^ ^^ ^^ ^^             (8 bytes total)
+    ;    keep high 32-bit
+    ;    zeroed
+
+__SizeOfStackReserve:
+
+    pop   rbx     ; rbx = return address to the parent module
+    push  rbx     ; keep stack unchanged
+
+    nop           ; fill up to 8 bytes
+
+    db    0e8h    ;
+    dd    0       ; call 0 to get RIP value
+
+__getRIP:         ; stack = [..., rip]
+                  ; now qword [rsp] contains RIP pushed by call
+                  ; 0 instruction
+
+    ; -----------------------------------------------
+    ; Second 8-bytes chunk: SizeOfStackCommit
+    ;
+    ; Load rsi-8 into rax.
+    ; After that we can execute 00 00 00 00 fillers
+    ; safely (without access violation).
+    ; 54    | push rsp           (1 byte)
+    ; 58    | pop  rax           (1 byte)
+    ; 5e    | pop  rsi           (1 byte)
+    ; 90    | nop                (1 byte)
+    ; 00 00 | add byte [rax], al (2 bytes)
+    ; 00 00 | add byte [rax], al (2 bytes)
+    ; ^^ ^^                      (8 bytes total)
+    ; keep high 32-bit
+    ; zeroed
+
+
+__sizeOfStackCommit:
+
+    push rsp      ; stack = [..., rip, rsp-8]
+    pop  rax      ; stack = [..., rip]
+                  ; rax   = rsp-8
+
+                  ; stack = [...]
+    pop  rsi      ; rsi   = __getRIP
+
+    nop           ; fill up to 8 bytes
+
+    dd 0          ; zero fillers (high 32-bit of SizeOfStackCommit)
+
+    ; ------------------------------------------------
+    ; Third 8-bytes chunk: SizeOfHeapReserve
+    ;
+    ; Map literals base to rsi to avoid usage
+    ; of rip based addresses with 32-bit displacements
+    ;
+    ; 48 83 xx xx | add rsi, <16-bit imm> (4 bytes)
+    ; 00 00       | add byte [rax], al    (2 bytes)
+    ; 00 00       | add byte [rax], al    (2 bytes)
+    ; ^^ ^^                               (8 bytes total)
+    ; keep high 32-bit
+    ; zeroed
+
+    __rel8_base EQU __headerPE.name_GetProcAddress
+
+__sizeOfHeapReserve:
+
+    add   rsi, __rel8_base - __getRIP ; rsi = __getRIP
+                                      ;     + __rel8_base - __getRIP
+                                      ;     = __rel8_base
     dd 0
 
-  .messageText4:
-  .sizeOfStackCommit:
-    dd 'impo'
-    dd 0
+    ; ------------------------------------------------
+    ; Fourth 8-bytes chunk: SizeOfHeapCommit
+    ; Not used yet, just jump to next code chunk
+    ; stored at unused Data Directories entries.
 
-  .messageText3:
-  .sizeOfHeapReserve:
-    dd 'have'
-    dd 0
+__sizeOfHeapCommit:
 
-  .messageText2:
-  .sizeOfHeapCommit:
-    dd 'dont'
-    dd 0
+    jmp   __nextCodePiece ; (2 bytes)
+    nop                   ; (1 byte)
+    nop                   ; (1 byte)
+    dd 0                  ; (4 bytes)
+                          ; (8 bytes total)
 
-  .messageText1:
-  .loaderFlags:
-    dd 'I'
+__loaderFlags:
+    dd 0
 
 ; -------------------------------------------------------------------------------
 
   .numberOfRvaAndSizes dd 0
 
-    ; ----------------------------------------------------------------
-    ; Entry point declared in the PE header.
-    ; This is the first code executed after PE header
-    ; is loaded into memory.
     ;
     ; Below we have 128 (16*8) bytes of unused Data Directory entries.
     ; Because we declare PE.numberOfRvaAndSizes equal to zero, we can
     ; put 128 bytes of code here.
 
 __unusedDataDirectoryEntires:
-__entryPoint:
 
-    ; ------------------------------------------------
-    ; Map literals base to rsi to avoid usage
-    ; of rip based addresses with 32-bit displacements
+__messageText db 'I have no imports', 0
 
-    __rel8_base EQU __headerPE.name_GetProcAddress
-
-    lea   rsi, [__rel8_base]
+__nextCodePiece:
 
     ; ##########################################################################
     ; #
@@ -223,9 +304,6 @@ __entryPoint:
 
     ; ----------------------------------------------------------
     ; Find module base address by searching for 'MZ\x90\0' magic
-
-    pop   rbx
-    push  rbx                      ; rbx = retAddr (to parent module) (1 byte)
 
     mov   eax, [rsi - __rel8_base] ; rax = dos magic readed from itself.
 
@@ -371,33 +449,21 @@ __entryPoint:
     call  rdi                     ; rax = GetProcAddress(msvcrt, 'puts')
 
     ; ----------------------------
-    ; for (i = 0; < 5; i++) {
-    ;   puts(messageTexts[i])
-    ; }
+    ; Call puts() to show it works
 
-printMessage:
+.printMessage:
 
-    push  rax                     ;
-    pop   rdi                     ; rdi = rax = puts
-
-    push  5                       ;
-    pop   rbx                     ; rbx = 5 = number of text pieces
-
-.printLoop:
-
-    lea   rcx, [rsi + __headerPE.messageTexts - __rel8_base + rbx*8 - 8]
-
+    lea   rcx, [rsi + __messageText - __rel8_base]
                                   ; rcx = text to print
-    call  rdi                     ; call puts(messageText)
-    dec   ebx                     ; rbx = update message index
-    jnz   .printLoop              ; go to next message
+    call  rax                     ; call puts(messageText)
 
     leave                         ; clean up stack frame
     ret                           ; exit process, go back to the parent module
 
     ; -----------------------------------
-    ; Fill up to 268 bytes, because PE32
+    ; Fill up to 268 bytes, because PE32+
     ; file probably cannot be smaller (?)
 
+    nop
     nop
     nop
