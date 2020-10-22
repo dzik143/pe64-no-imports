@@ -1,7 +1,7 @@
 # PE32+ (64-bit) - LoadLibrary() without imports table
 
 # What does it do
-Code shows the example how to use external modules on-the-fly **WITHOUT** imports table.
+Code shows the example how to use external modules on-the-fly **WITHOUT** [imports table](https://docs.microsoft.com/en-us/windows/win32/debug/pe-format#the-idata-section).
 
 The code does the following steps:
 1. Finds out the KERNEL32.DLL base (see versions below),
